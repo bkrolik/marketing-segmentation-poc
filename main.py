@@ -45,3 +45,7 @@ def audience(payload: SegmentQueryRequest):
     size = run_count_query(payload.table_name, where_clause)
 
     return {"audience_size": size}
+
+def run():
+    import uvicorn
+    uvicorn.run("main:app", reload=True)
