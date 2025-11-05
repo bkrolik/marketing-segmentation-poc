@@ -11,7 +11,7 @@ def schema(payload: SchemaRequest):
     return fetch_schema(payload.schema_name)
 
 @app.post("/segment_dynamic")
-def segment_dynamic(payload: BusinessRequest):
+async def segment_dynamic(payload: BusinessRequest):
     metadata = fetch_schema(payload.schema_name)
 
     prompt = f"""
@@ -24,13 +24,14 @@ def segment_dynamic(payload: BusinessRequest):
         Output JSON with:
         - table_name
         - filters (dict of column:value or column:[min,max])
-        Only output JSON.
+        Provide the response as a valid JSON object only, no commentary or explanation.
     """
 
-    return json.loads(llm(prompt))
+    result = await llm(prompt)
+    return json.loads(result)
 
 @app.post("/audience_dynamic")
-def audience(payload: SegmentQueryRequest):
+async def audience(payload: SegmentQueryRequest):
 
     conditions = []
     for col, val in payload.filters.items():

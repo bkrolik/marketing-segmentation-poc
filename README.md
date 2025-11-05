@@ -146,6 +146,96 @@ These will come later.
 
 ---
 
+## 🔬 Functional testing using Docker and pytest
+
+This proof of concept includes functional tests that use a Postgres database running inside Docker. Postgres acts as a local stand in for Redshift. The tests automatically seed deterministic data and clean the database before each run.
+
+To start the test database:
+```
+docker-compose up -d
+```
+
+Verify that Postgres is running:
+```
+docker ps
+```
+
+On Linux export environment variable:
+```
+export ENV=TEST
+```
+
+Or on Windows PowerShell use:
+```
+$env:ENV = "TEST"
+```
+
+Run the backend in a second terminal:
+```
+uvicorn main:app --reload
+```
+
+Run the test suite:
+```
+pytest -q
+```
+💡 You can verify the table manually:
+
+```
+docker exec -it marketing_test_db psql -U test -d analytics
+\dt residents.*
+```
+* Should show:
+```
+             List of relations
+  Schema   |     Name      | Type  | Owner 
+-----------+---------------+-------+-------
+ residents | resident_core | table | test
+```
+
+When tests pass, stop the database:
+```
+docker-compose down
+```
+
+The test environment includes:
+
+* automatic database resets
+* synthetic seed data
+* OpenAI mocked responses
+* network free local functional testing
+
+---
+
+## 📦 Synthetic data generation
+
+You can generate large randomized resident datasets for stress testing:
+```
+python generate_synthetic_data.py > seed_synthetic.sql
+```
+
+Load it into the test database:
+```
+docker exec -i marketing_test_db psql -U test -d analytics < schemas.sql
+docker exec -i marketing_test_db psql -U test -d analytics < seed_synthetic.sql
+```
+
+Then run tests again to measure performance on large datasets.
+
+---
+
+## 🧪 Mocking OpenAI in tests
+
+All functional tests mock model calls to avoid real network usage. You can inspect the fixtures in `tests/conftest.py` to adjust the behavior. This guarantees deterministic output and makes tests fast and reliable.
+
+---
+
+## 🧯 Resetting databases between tests
+
+Each test starts with a clean database state. This allows repeatable testing with no cross test interference. You can remove or modify this behavior to simulate persistent data scenarios.
+
+---
+
 ## 🗺️ Roadmap ideas
 
 * Add minimum audience thresholds

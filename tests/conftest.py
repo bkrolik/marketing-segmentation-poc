@@ -1,8 +1,11 @@
-import os
+# import os
 import time
 import pytest
 import psycopg2
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
+from dotenv import load_dotenv
+
+load_dotenv(".env.test")
 
 DB_CONN = dict(
     host="localhost",
@@ -29,10 +32,23 @@ def db_ready():
 def reset_db():
     conn = psycopg2.connect(**DB_CONN)
     cur = conn.cursor()
+
+    cur.execute("CREATE SCHEMA IF NOT EXISTS residents;")
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS residents.resident_core (
+            pseudonymous_id VARCHAR,
+            age INT,
+            income_band INT,
+            kids_flag BOOLEAN,
+            distance_miles FLOAT
+        );
+    """)
+
     cur.execute("DELETE FROM residents.resident_core;")
     conn.commit()
 
-    # seed a few predictable rows
+    # seed predictable data
     cur.execute("""
         INSERT INTO residents.resident_core VALUES
         ('p1', 34, 60000, true, 2.1),
@@ -45,6 +61,6 @@ def reset_db():
 
 @pytest.fixture
 def mock_openai_llm():
-    with patch("openai_client.llm") as mocker:
-        mocker.return_value = '{"table_name":"resident_core","filters":{"age":[25,55],"kids_flag":true}}'
+    with patch("openai_client.llm", new_callable=AsyncMock) as mocker:
+        mocker.return_value = '{"table_name": "resident_core", "filters": {"age": [25,55], "kids_flag": true}}'
         yield mocker

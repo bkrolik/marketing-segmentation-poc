@@ -1,13 +1,18 @@
 import os
-import openai
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Load the right env file depending on environment
+if os.getenv("ENV") == "TEST":
+    load_dotenv(".env.test")
+else:
+    load_dotenv()
 
-def llm(prompt: str):
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "system", "content": prompt}]
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+async def llm(prompt: str) -> str:
+    response = await client.responses.create(
+        model="gpt-5-mini",
+        input=prompt
     )
-    return response["choices"][0]["message"]["content"]
+    return response.output_text

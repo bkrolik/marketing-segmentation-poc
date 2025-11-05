@@ -2,9 +2,22 @@ import os
 import redshift_connector
 from dotenv import load_dotenv
 
-load_dotenv()
+if os.getenv("ENV") == "TEST":
+    load_dotenv(".env.test")
+else:
+    load_dotenv()
 
 def get_conn():
+    if os.getenv("ENV") == "TEST":
+        import psycopg2
+        return psycopg2.connect(
+            host=os.getenv("REDSHIFT_HOST"),
+            port=os.getenv("REDSHIFT_PORT"),
+            dbname=os.getenv("REDSHIFT_DATABASE"),
+            user=os.getenv("REDSHIFT_USER"),
+            password=os.getenv("REDSHIFT_PASSWORD")
+        )
+
     return redshift_connector.connect(
         host=os.getenv("REDSHIFT_HOST"),
         port=int(os.getenv("REDSHIFT_PORT")),
