@@ -8,6 +8,7 @@ from models import SchemaRequest, BusinessRequest, SegmentQueryRequest, SegmentR
 
 app = FastAPI()
 
+
 @app.get("/health")
 async def health():
     return {"ok": True}

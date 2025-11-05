@@ -29,7 +29,7 @@ def wait_for_db():
         try:
             psycopg2.connect(**DB_CONN).close()
             return
-        except:
+        except Exception:
             time.sleep(1)
     raise RuntimeError("Database not ready")
 

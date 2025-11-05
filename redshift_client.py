@@ -48,6 +48,7 @@ def fetch_schema(schema_name: str):
 
 FilterSpec = Tuple[str, str]
 
+
 def run_count_query(table_name: str, filters: Iterable[FilterSpec], params: List[Any]) -> int:
     conn = get_conn()
     cursor = conn.cursor()
@@ -78,4 +79,3 @@ def run_count_query(table_name: str, filters: Iterable[FilterSpec], params: List
     (count,) = cursor.fetchone()
     conn.close()
     return count
-

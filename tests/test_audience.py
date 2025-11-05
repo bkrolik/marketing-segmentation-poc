@@ -2,7 +2,7 @@ def test_audience_query(client):
     payload = {
         "table_name": "resident_core",
         "filters": {
-            "age": [25,55],
+            "age": [25, 55],
             "kids_flag": True
         }
     }

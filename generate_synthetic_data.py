@@ -1,6 +1,7 @@
 import random
 import string
 
+
 def generate_residents(n=5000):
     residents = []
     for _ in range(n):
@@ -11,6 +12,7 @@ def generate_residents(n=5000):
         distance = round(random.uniform(0.1, 10.0), 2)
         residents.append((pid, age, income, kids, distance))
     return residents
+
 
 if __name__ == "__main__":
     data = generate_residents(5000)

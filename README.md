@@ -1,3 +1,4 @@
+[![Python package](https://github.com/bkrolik/marketing-segmentation-poc/actions/workflows/python-package.yml/badge.svg)](https://github.com/bkrolik/marketing-segmentation-poc/actions/workflows/python-package.yml)
 # Marketing Segmentation POC (Proof of Concept)
 
 This repository contains a simple end to end POC for a marketing segmentation service. The goal is to allow a backend system to:
@@ -39,34 +40,34 @@ You need the following installed:
 1. Clone this repository
 
 ```
-git clone <your-repo-url>
-cd marketing-segmentation-poc/backend
+$ git clone https://github.com/bkrolik/marketing-segmentation-poc
+$ cd marketing-segmentation-poc
 ```
 
 2. Install backend dependencies
 
 ```
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 3. Create a `.env` file based on `.env.example`
 
 ```
-cp .env.example .env
+$ cp .env.example .env
 ```
 
 Fill in your Redshift connection details and OpenAI key.
 
 4. Load synthetic data into Redshift (optional)
 
-Run the SQL files located in `data/` using your Redshift SQL client.
+Run the `*.sql` SQL files using your Redshift SQL client.
 
 ---
 
 ## ▶️ Run the backend
 
 ```
-uvicorn main:app --reload
+$ uvicorn main:app --reload
 ```
 
 The server will start on `http://127.0.0.1:8000`
@@ -152,33 +153,33 @@ This proof of concept includes functional tests that use a Postgres database run
 
 To start the test database:
 ```
-docker-compose up -d
+$ docker-compose up -d
 ```
 
 Verify that Postgres is running:
 ```
-docker ps
+$ docker ps
 ```
 
 On Linux export environment variable:
 ```
-export ENV=TEST
+$ export ENV=TEST
 ```
 
 Or on Windows PowerShell use:
 ```
-$env:ENV = "TEST"
+> $env:ENV = "TEST"
 ```
 
 Run the test suite:
 ```
-pytest -q
+$ pytest -q
 ```
 💡 You can also verify the table manually:
 
 ```
-docker exec -it marketing_test_db psql -U test -d analytics
-\dt residents.*
+$ docker exec -it marketing_test_db psql -U test -d analytics
+> \dt residents.*
 ```
 * Should show:
 ```
@@ -190,7 +191,7 @@ docker exec -it marketing_test_db psql -U test -d analytics
 
 When tests pass, stop the database:
 ```
-docker-compose down
+$ docker-compose down
 ```
 
 The test environment includes:
@@ -206,13 +207,13 @@ The test environment includes:
 
 You can generate large randomized resident datasets for stress testing:
 ```
-python generate_synthetic_data.py > seed_synthetic.sql
+$ python generate_synthetic_data.py > seed_synthetic.sql
 ```
 
 Load it into the test database:
 ```
-docker exec -i marketing_test_db psql -U test -d analytics < schemas.sql
-docker exec -i marketing_test_db psql -U test -d analytics < seed_synthetic.sql
+$ docker exec -i marketing_test_db psql -U test -d analytics < schemas.sql
+$ docker exec -i marketing_test_db psql -U test -d analytics < seed_synthetic.sql
 ```
 
 Then run tests again to measure performance on large datasets.
