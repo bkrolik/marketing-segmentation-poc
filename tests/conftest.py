@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from main import app
 
+
 load_dotenv(".env.test")
 
 DB_CONN = dict(
@@ -17,9 +18,11 @@ DB_CONN = dict(
     password="test"
 )
 
+
 @pytest.fixture(scope="session")
 def client():
     return TestClient(app)
+
 
 def wait_for_db():
     for _ in range(10):
@@ -30,9 +33,11 @@ def wait_for_db():
             time.sleep(1)
     raise RuntimeError("Database not ready")
 
+
 @pytest.fixture(scope="session", autouse=True)
 def db_ready():
     wait_for_db()
+
 
 @pytest.fixture(autouse=True)
 def reset_db():
@@ -64,6 +69,7 @@ def reset_db():
     """)
     conn.commit()
     conn.close()
+
 
 @pytest.fixture
 def mock_openai_llm():

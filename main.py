@@ -1,8 +1,10 @@
-from fastapi import FastAPI, HTTPException
-from models import SchemaRequest, BusinessRequest, SegmentQueryRequest, SegmentResult
-from redshift_client import fetch_schema, run_count_query
-from openai_client import llm
 import json
+import openai_client
+from typing import Any, List
+from fastapi import FastAPI, HTTPException
+from redshift_client import FilterSpec, fetch_schema, run_count_query
+from models import SchemaRequest, BusinessRequest, SegmentQueryRequest, SegmentResult
+
 
 app = FastAPI()
 
@@ -10,9 +12,11 @@ app = FastAPI()
 async def health():
     return {"ok": True}
 
+
 @app.post("/schema")
 def schema(payload: SchemaRequest):
     return fetch_schema(payload.schema_name)
+
 
 @app.post("/segment_dynamic")
 async def segment_dynamic(payload: BusinessRequest):
@@ -31,7 +35,7 @@ async def segment_dynamic(payload: BusinessRequest):
         You must respond with only valid JSON. Do not add commentary. Do not add explanation.
     """
 
-    result = await llm(prompt)
+    result = await openai_client.llm(prompt)
     data = json.loads(result)
     parsed = SegmentResult(**data)  # throws if structure is wrong
     return parsed
@@ -40,30 +44,29 @@ async def segment_dynamic(payload: BusinessRequest):
 @app.post("/audience_dynamic")
 async def audience(payload: SegmentQueryRequest):
     metadata = fetch_schema("residents")
-    allowed_columns = set(
-        col["column_name"]
-        for table in metadata
-        for col in table["columns"]
-    )
+    allowed_columns = {column_name for _, column_name, _ in metadata}
 
-    conditions = []
+    filters: List[FilterSpec] = []
+    params: List[Any] = []
+
     for col, val in payload.filters.items():
         if col not in allowed_columns:
             raise HTTPException(400, f"Invalid filter column: {col}")
-        if isinstance(val, list) and len(val) == 2:
+
+        if isinstance(val, (list, tuple)) and len(val) == 2:
             low, high = val
             if low > high:
                 raise HTTPException(400, f"Invalid range filter on {col}")
-            conditions.append(f"{col} BETWEEN {low} AND {high}")
-        elif isinstance(val, bool):
-            conditions.append(f"{col} = {val}")
+            filters.append((col, "between"))
+            params.extend([low, high])
         else:
-            conditions.append(f"{col} = '{val}'")
+            filters.append((col, "eq"))
+            params.append(val)
 
-    where_clause = " AND ".join(conditions)
-    size = run_count_query(payload.table_name, where_clause)
+    size = run_count_query(payload.table_name, filters, params)
 
     return {"audience_size": size}
+
 
 def run():
     import uvicorn
