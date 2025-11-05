@@ -4,6 +4,8 @@ import pytest
 import psycopg2
 from unittest.mock import patch, AsyncMock
 from dotenv import load_dotenv
+from fastapi.testclient import TestClient
+from main import app
 
 load_dotenv(".env.test")
 
@@ -14,6 +16,10 @@ DB_CONN = dict(
     user="test",
     password="test"
 )
+
+@pytest.fixture(scope="session")
+def client():
+    return TestClient(app)
 
 def wait_for_db():
     for _ in range(10):

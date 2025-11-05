@@ -1,6 +1,4 @@
-import requests
-
-def test_audience_query():
+def test_audience_query(client):
     payload = {
         "table_name": "resident_core",
         "filters": {
@@ -8,6 +6,6 @@ def test_audience_query():
             "kids_flag": True
         }
     }
-    resp = requests.post("http://localhost:8000/audience_dynamic", json=payload)
+    resp = client.post("/audience_dynamic", json=payload)
     assert resp.status_code == 200
     assert resp.json()["audience_size"] >= 1
