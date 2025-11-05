@@ -170,16 +170,11 @@ Or on Windows PowerShell use:
 $env:ENV = "TEST"
 ```
 
-Run the backend in a second terminal:
-```
-uvicorn main:app --reload
-```
-
 Run the test suite:
 ```
 pytest -q
 ```
-💡 You can verify the table manually:
+💡 You can also verify the table manually:
 
 ```
 docker exec -it marketing_test_db psql -U test -d analytics
