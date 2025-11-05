@@ -1,10 +1,14 @@
-from fastapi import FastAPI
-from models import SchemaRequest, BusinessRequest, SegmentQueryRequest
+from fastapi import FastAPI, HTTPException
+from models import SchemaRequest, BusinessRequest, SegmentQueryRequest, SegmentResult
 from redshift_client import fetch_schema, run_count_query
 from openai_client import llm
 import json
 
 app = FastAPI()
+
+@app.get("/health")
+async def health():
+    return {"ok": True}
 
 @app.post("/schema")
 def schema(payload: SchemaRequest):
@@ -24,19 +28,33 @@ async def segment_dynamic(payload: BusinessRequest):
         Output JSON with:
         - table_name
         - filters (dict of column:value or column:[min,max])
-        Provide the response as a valid JSON object only, no commentary or explanation.
+        You must respond with only valid JSON. Do not add commentary. Do not add explanation.
     """
 
     result = await llm(prompt)
-    return json.loads(result)
+    data = json.loads(result)
+    parsed = SegmentResult(**data)  # throws if structure is wrong
+    return parsed
+
 
 @app.post("/audience_dynamic")
 async def audience(payload: SegmentQueryRequest):
+    metadata = fetch_schema("residents")
+    allowed_columns = set(
+        col["column_name"]
+        for table in metadata
+        for col in table["columns"]
+    )
 
     conditions = []
     for col, val in payload.filters.items():
+        if col not in allowed_columns:
+            raise HTTPException(400, f"Invalid filter column: {col}")
         if isinstance(val, list) and len(val) == 2:
-            conditions.append(f"{col} BETWEEN {val[0]} AND {val[1]}")
+            low, high = val
+            if low > high:
+                raise HTTPException(400, f"Invalid range filter on {col}")
+            conditions.append(f"{col} BETWEEN {low} AND {high}")
         elif isinstance(val, bool):
             conditions.append(f"{col} = {val}")
         else:

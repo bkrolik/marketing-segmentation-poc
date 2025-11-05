@@ -1,6 +1,7 @@
 import os
 import redshift_connector
 from dotenv import load_dotenv
+from psycopg2 import sql
 
 if os.getenv("ENV") == "TEST":
     load_dotenv(".env.test")
@@ -40,16 +41,17 @@ def fetch_schema(schema_name: str):
     conn.close()
     return rows
 
-def run_count_query(table_name: str, where_clause: str):
+def run_count_query(table_name: str, where_clause: str) -> int:
     conn = get_conn()
     cursor = conn.cursor()
+    schema = os.getenv("DEFAULT_SCHEMA", "public")
 
-    query = f"""
-        SELECT COUNT(*) FROM {table_name}
-        WHERE {where_clause};
-    """
-
+    query = sql.SQL("SELECT COUNT(*) FROM {}.{} {}").format(
+        sql.Identifier(schema),
+        sql.Identifier(table_name),
+        sql.SQL(where_clause)
+    )
     cursor.execute(query)
-    result = cursor.fetchone()
+    (count,) = cursor.fetchone()
     conn.close()
-    return result[0]
+    return count

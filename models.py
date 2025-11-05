@@ -12,4 +12,7 @@ class BusinessRequest(BaseModel):
 class SegmentQueryRequest(BaseModel):
     table_name: str
     filters: Dict[str, Any]
-    
+
+class SegmentResult(BaseModel):
+    table_name: str
+    filters: Dict[str, Any]
