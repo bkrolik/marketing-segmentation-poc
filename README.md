@@ -12,6 +12,21 @@ There is no frontend, user authentication, or authorization in this POC. Everyth
 
 ---
 
+## 🔮 High level idea
+
+There is an idea for a cloud-based service that:
+
+* guides a business owner through simple conversational onboarding
+* translates their answers into a structured customer segment
+* queries national resident data inside Amazon Redshift, which is a cloud data warehouse
+* builds a privacy safe potential customer audience
+* generates an advertising strategy using OpenAI
+* optionally exports activation artifacts to Google Ads or Meta Ads
+
+It is important to keep in mind that the architecture would be designed to be compliant, secure, and scalable.
+
+---
+
 ## 🚀 High level architecture
 
 The system has three main steps:
