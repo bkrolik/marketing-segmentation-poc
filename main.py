@@ -24,6 +24,9 @@ async def segment_dynamic(payload: BusinessRequest):
     metadata = fetch_schema(payload.schema_name)
 
     prompt = f"""
+        You are a marketing assistant. Extract a structured target audience
+        from this business description. You must respond with only valid JSON. 
+        Do not add commentary. Do not add explanation.
         User business category: {payload.business_category}
         Business description: {payload.business_description}
 
@@ -33,7 +36,6 @@ async def segment_dynamic(payload: BusinessRequest):
         Output JSON with:
         - table_name
         - filters (dict of column:value or column:[min,max])
-        You must respond with only valid JSON. Do not add commentary. Do not add explanation.
     """
 
     result = await openai_client.llm(prompt)
