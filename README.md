@@ -8,7 +8,7 @@ This repository contains a simple end to end POC for a marketing segmentation se
 * Ask OpenAI to produce a structured segmentation strategy based on a business description
 * Query Redshift to count potential customers that match the suggested filters
 
-There is no frontend, user authentication, or authorization in this POC. Everything is API driven and intentionally simple so we can iterate quickly.
+There is no frontend, user authentication, or authorization in this POC. Everything is API driven and intentionally simple to iterate quickly.
 
 ---
 
@@ -263,7 +263,7 @@ Each test starts with a clean database state. This allows repeatable testing wit
 
 ## 🤝 Contributing
 
-This POC is intentionally small so we can experiment. Feel free to extend:
+This POC is intentionally small to make experiments. Feel free to extend:
 
 * new routers
 * new filters
