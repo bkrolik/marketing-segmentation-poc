@@ -1,3 +1,10 @@
+"""
+Async helper for calling the OpenAI Responses API with retry logic.
+
+Loads environment variables and exposes an `llm` coroutine that returns
+the response text for a given prompt.
+"""
+
 import asyncio
 import os
 from typing import Optional
@@ -15,6 +22,15 @@ _client: Optional[AsyncOpenAI] = None
 
 
 def _get_client() -> AsyncOpenAI:
+    """
+    Create or return a cached AsyncOpenAI client.
+
+    Raises:
+        RuntimeError: If `OPENAI_API_KEY` is not set in the environment.
+
+    Returns:
+        AsyncOpenAI: Configured async OpenAI client instance.
+    """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
@@ -25,7 +41,20 @@ def _get_client() -> AsyncOpenAI:
     return _client
 
 
-async def llm(prompt: str) -> str:
+async def llm(prompt: str) -> str | None:
+    """
+    Call the OpenAI Responses API asynchronously with basic retry/backoff.
+
+    Args:
+        prompt (str): Text prompt to send to the model.
+
+    Returns:
+        str: The text output from the model.
+
+    Raises:
+        Exception: Propagates the last exception raised after retrying.
+    """
+
     for attempt in range(3):
         try:
             response = await asyncio.wait_for(

@@ -1,3 +1,9 @@
+"""
+Utilities for connecting to Redshift and running simple queries.
+
+Provides `get_conn`, `fetch_schema`, and `run_count_query` helpers.
+"""
+
 import os
 import redshift_connector
 from typing import Any, Iterable, List, Tuple
@@ -12,6 +18,16 @@ else:
 
 
 def get_conn():
+    """
+    Return a DB connection to Redshift or a test Postgres instance.
+
+    Uses `ENV=TEST` to decide whether to return a local `psycopg2` connection
+    or a `redshift_connector` connection.
+
+    Returns:
+        Connection: DB connection object from `psycopg2` or `redshift_connector`.
+    """
+
     if os.getenv("ENV") == "TEST":
         import psycopg2
         return psycopg2.connect(
@@ -32,6 +48,16 @@ def get_conn():
 
 
 def fetch_schema(schema_name: str):
+    """
+    Fetch column metadata for all tables in a schema.
+
+    Args:
+        schema_name (str): Name of the schema to query.
+
+    Returns:
+        list[tuple]: Rows containing (table_name, column_name, data_type).
+    """
+
     conn = get_conn()
     cursor = conn.cursor()
 
@@ -50,6 +76,18 @@ FilterSpec = Tuple[str, str]
 
 
 def run_count_query(table_name: str, filters: Iterable[FilterSpec], params: List[Any]) -> int:
+    """
+    Run a parameterized COUNT(*) query with optional filters.
+
+    Args:
+        table_name (str): Table to count rows from (uses `DEFAULT_SCHEMA` env var).
+        filters (Iterable[FilterSpec]): Sequence of (column, clause_type) tuples.
+        params (list[Any]): Parameters for the query in the same order as filters.
+
+    Returns:
+        int: Row count result.
+    """
+
     conn = get_conn()
     cursor = conn.cursor()
     schema = os.getenv("DEFAULT_SCHEMA", "public")
