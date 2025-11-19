@@ -48,3 +48,21 @@ class SegmentResult(BaseModel):
     """
     table_name: str
     filters: Dict[str, Any]
+
+class SchemaField(BaseModel):
+    """
+    Representation of a single column in a schema.
+
+    Attributes:
+        table_name (str): Name of the table containing the column.
+        column_name (str): Name of the column.
+        data_type (str): Database data type for the column.
+    """
+    table_name: str
+    column_name: str
+    data_type: str
+
+class AudienceSize(BaseModel):
+    """Response model for audience size results."""
+
+    audience_size: int
