@@ -114,6 +114,13 @@ def run_count_query(table_name: str, filters: Iterable[FilterSpec], params: List
         query = base_query
 
     cursor.execute(query, params)
-    (count,) = cursor.fetchone()
+    row = cursor.fetchone()
+    if row is None:
+        count = 0
+    else:
+        if isinstance(row, (tuple, list)):
+            count = row[0]
+        else:
+            count = row
     conn.close()
-    return count
+    return int(count)
