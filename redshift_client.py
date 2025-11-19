@@ -32,7 +32,7 @@ def get_conn():
         import psycopg2
         return psycopg2.connect(
             host=os.getenv("REDSHIFT_HOST"),
-            port=os.getenv("REDSHIFT_PORT"),
+            port=int(os.getenv("REDSHIFT_PORT", "5439")),
             dbname=os.getenv("REDSHIFT_DATABASE"),
             user=os.getenv("REDSHIFT_USER"),
             password=os.getenv("REDSHIFT_PASSWORD")
@@ -40,7 +40,7 @@ def get_conn():
 
     return redshift_connector.connect(
         host=os.getenv("REDSHIFT_HOST"),
-        port=int(os.getenv("REDSHIFT_PORT")),
+        port=int(os.getenv("REDSHIFT_PORT", "5439")),
         database=os.getenv("REDSHIFT_DATABASE"),
         user=os.getenv("REDSHIFT_USER"),
         password=os.getenv("REDSHIFT_PASSWORD")
