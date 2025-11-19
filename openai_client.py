@@ -41,7 +41,7 @@ def _get_client() -> AsyncOpenAI:
     return _client
 
 
-async def llm(prompt: str) -> str | None:
+async def llm(prompt: str) -> str:
     """
     Call the OpenAI Responses API asynchronously with basic retry/backoff.
 
@@ -69,5 +69,11 @@ async def llm(prompt: str) -> str | None:
             return response.output_text
         except Exception as e:
             if attempt == 2:
-                raise e
+                raise RuntimeError(f"Failed to get a response from the LLM after {attempt+1} attempts: {e}")
             await asyncio.sleep(0.5 * (attempt + 1))
+    # The function is declared to return `str` — ensure no code path falls through
+    # and implicitly returns `None`. If we reach this point the retry loop completed
+    # without returning a response (which should not normally happen because the
+    # last attempt raises). Raise a clear, explicit error so callers receive a
+    # well-defined exception rather than `None`.
+    raise RuntimeError("Failed to get a response from the LLM after retries")
