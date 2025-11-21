@@ -1,7 +1,7 @@
 [![Python package](https://github.com/bkrolik/marketing-segmentation-poc/actions/workflows/python-package.yml/badge.svg)](https://github.com/bkrolik/marketing-segmentation-poc/actions/workflows/python-package.yml)
 # Marketing Segmentation POC (Proof of Concept)
 
-This repository contains a simple end to end POC for a marketing segmentation service. The goal is to allow a backend system to:
+This project demonstrates an end-to-end POC for an AI-powered marketing segmentation service that combines OpenAI’s LLM with agentic automation. The goal is to allow a backend system to:
 
 * Inspect existing datasets in Amazon Redshift
 * Dynamically understand the tables and columns that describe residents
