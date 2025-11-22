@@ -8,7 +8,8 @@ from fastapi.testclient import TestClient
 from main import app
 
 
-load_dotenv(".env.test")
+def pytest_configure():
+    load_dotenv(".env.test")
 
 DB_CONN = dict(
     host="localhost",

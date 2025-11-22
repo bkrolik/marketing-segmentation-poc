@@ -7,4 +7,5 @@ pydantic
 
 pytest
 psycopg-binary
-
+pytest-asyncio
+pytest-env

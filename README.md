@@ -75,7 +75,7 @@ Fill in your Redshift connection details and OpenAI key.
 
 4. Load synthetic data into Redshift (optional)
 
-Run the `*.sql` SQL files using your Redshift SQL client.
+Run the `./sql/*.sql` SQL files using your Redshift SQL client.
 
 ---
 
@@ -176,22 +176,12 @@ Verify that Postgres is running:
 $ docker ps
 ```
 
-On Linux export environment variable:
-```
-$ export ENV=TEST
-```
-
-Or on Windows PowerShell use:
-```
-> $env:ENV = "TEST"
-```
-
 Run the test suite:
 ```
 $ pytest -q
 ```
-💡 You can also verify the table manually:
 
+💡 You can also verify the table manually:
 ```
 $ docker exec -it marketing_test_db psql -U test -d analytics
 > \dt residents.*
@@ -220,7 +210,7 @@ The test environment includes:
 
 ## 📦 Synthetic data generation
 
-You can generate large randomized resident datasets for stress testing:
+You can generate large randomized resident datasets for stress testing in `./sql/`:
 ```
 $ python generate_synthetic_data.py > seed_synthetic.sql
 ```

@@ -12,11 +12,7 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
 
-# Load the right env file depending on environment
-if os.getenv("ENV") == "TEST":
-    load_dotenv("../.env.test")
-else:
-    load_dotenv()
+load_dotenv(os.getenv("ENV_FILE", ".env"))
 
 _client: Optional[AsyncOpenAI] = None
 

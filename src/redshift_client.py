@@ -11,10 +11,7 @@ from dotenv import load_dotenv
 from psycopg import sql
 
 
-if os.getenv("ENV") == "TEST":
-    load_dotenv("../.env.test")
-else:
-    load_dotenv()
+load_dotenv(os.getenv("ENV_FILE", ".env"))
 
 
 def get_conn():
