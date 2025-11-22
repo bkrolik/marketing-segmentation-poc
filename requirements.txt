@@ -6,6 +6,5 @@ python-dotenv
 pydantic
 
 pytest
-pytest-mock
-requests
-psycopg2-binary
+psycopg-binary
+
