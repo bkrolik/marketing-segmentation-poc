@@ -8,7 +8,7 @@ import os
 import redshift_connector
 from typing import Any, Iterable, List, Tuple
 from dotenv import load_dotenv
-from psycopg2 import sql
+from psycopg import sql
 
 
 if os.getenv("ENV") == "TEST":
@@ -21,16 +21,16 @@ def get_conn():
     """
     Return a DB connection to Redshift or a test Postgres instance.
 
-    Uses `ENV=TEST` to decide whether to return a local `psycopg2` connection
+    Uses `ENV=TEST` to decide whether to return a local `psycopg` connection
     or a `redshift_connector` connection.
 
     Returns:
-        Connection: DB connection object from `psycopg2` or `redshift_connector`.
+        Connection: DB connection object from `psycopg` or `redshift_connector`.
     """
 
     if os.getenv("ENV") == "TEST":
-        import psycopg2
-        return psycopg2.connect(
+        import psycopg
+        return psycopg.connect(
             host=os.getenv("REDSHIFT_HOST"),
             port=int(os.getenv("REDSHIFT_PORT", "5439")),
             dbname=os.getenv("REDSHIFT_DATABASE"),

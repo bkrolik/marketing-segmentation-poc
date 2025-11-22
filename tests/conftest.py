@@ -1,7 +1,7 @@
 # import os
 import time
 import pytest
-import psycopg2
+import psycopg
 from unittest.mock import patch, AsyncMock
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
@@ -27,7 +27,7 @@ def client():
 def wait_for_db():
     for _ in range(10):
         try:
-            psycopg2.connect(**DB_CONN).close()
+            psycopg.connect(**DB_CONN).close()
             return
         except Exception:
             time.sleep(1)
@@ -41,7 +41,7 @@ def db_ready():
 
 @pytest.fixture(autouse=True)
 def reset_db():
-    conn = psycopg2.connect(**DB_CONN)
+    conn = psycopg.connect(**DB_CONN)
     cur = conn.cursor()
 
     cur.execute("CREATE SCHEMA IF NOT EXISTS residents;")
