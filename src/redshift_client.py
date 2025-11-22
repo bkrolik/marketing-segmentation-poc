@@ -12,7 +12,7 @@ from psycopg import sql
 
 
 if os.getenv("ENV") == "TEST":
-    load_dotenv(".env.test")
+    load_dotenv("../.env.test")
 else:
     load_dotenv()
 

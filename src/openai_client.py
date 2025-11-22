@@ -14,7 +14,7 @@ from openai import AsyncOpenAI
 
 # Load the right env file depending on environment
 if os.getenv("ENV") == "TEST":
-    load_dotenv(".env.test")
+    load_dotenv("../.env.test")
 else:
     load_dotenv()
 
