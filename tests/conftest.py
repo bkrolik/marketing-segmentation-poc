@@ -1,4 +1,4 @@
-# import os
+import os
 import time
 import pytest
 import psycopg
@@ -11,12 +11,13 @@ from main import app
 def pytest_configure():
     load_dotenv(".env.test")
 
+
 DB_CONN = dict(
-    host="localhost",
-    port=5439,
-    dbname="analytics",
-    user="test",
-    password="test"
+    host=os.getenv("REDSHIFT_HOST"),
+    port=int(os.getenv("REDSHIFT_PORT", "5439")),
+    dbname=os.getenv("REDSHIFT_DATABASE"),
+    user=os.getenv("REDSHIFT_USER"),
+    password=os.getenv("REDSHIFT_PASSWORD")
 )
 
 

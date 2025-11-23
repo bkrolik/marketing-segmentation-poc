@@ -4,8 +4,8 @@ openai
 redshift-connector
 python-dotenv
 pydantic
+psycopg[binary]
 
 pytest
-psycopg-binary
 pytest-asyncio
 pytest-env
