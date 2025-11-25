@@ -55,12 +55,12 @@ async def llm(prompt: str) -> str:
         try:
             response = await asyncio.wait_for(
                 _get_client().responses.create(
-                    model="gpt-5-mini",
+                    model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
                     input=prompt,
-                    max_output_tokens=300,
-                    temperature=0.2,
+                    max_output_tokens=int(os.getenv("MAX_OUTPUT_TOKENS", "300")),
+                    temperature=int(os.getenv("OPENAI_TEMPERATURE", "0.2")),
                 ),
-                timeout=10,
+                timeout=int(os.getenv("OPENAI_TIMEOUT", "10")),
             )
             return response.output_text
         except Exception as e:
