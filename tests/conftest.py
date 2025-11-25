@@ -9,7 +9,7 @@ from main import app
 
 
 def pytest_configure():
-    load_dotenv(".env.test")
+    load_dotenv(os.getenv("ENV_FILE", ".env.test"))
 
 
 DB_CONN = dict(

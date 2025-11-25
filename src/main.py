@@ -1,7 +1,10 @@
+import os
 import json
 import openai_client
 from typing import Any, List
+from pydantic import ValidationError
 from fastapi import FastAPI, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from redshift_client import FilterSpec, fetch_schema, run_count_query
 from models import (
     SchemaRequest,
@@ -108,9 +111,43 @@ async def segment_dynamic(payload: BusinessRequest):
         - filters (dict of column:value or column:[min,max])
     """
 
-    result = await openai_client.llm(prompt)
-    data = json.loads(result)
-    parsed = SegmentResult(**data)  # throws if structure is wrong
+    # Call the LLM
+    try:
+        result = await openai_client.llm(prompt)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+    # Parse LLM output as JSON
+    try:
+        data = json.loads(result)
+    except json.JSONDecodeError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"LLM returned invalid JSON: {e}",
+        ) from e
+
+    # Validate JSON against SegmentResult model
+    try:
+        parsed = SegmentResult(**data)
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=422,
+            detail=f"LLM output validation failed: {e.errors()}",
+        ) from e
+
+    # Validate table name and filter columns against schema metadata
+    tables = {t for t, _, _ in metadata}
+    columns_by_table = {}
+    for t, c, _ in metadata:
+        columns_by_table.setdefault(t, set()).add(c)
+
+    if parsed.table_name not in tables:
+        raise HTTPException(400, f"Invalid table name from LLM: {parsed.table_name}")
+
+    invalid = [c for c in parsed.filters.keys() if c not in columns_by_table[parsed.table_name]]
+    if invalid:
+        raise HTTPException(400, f"Invalid filter columns from LLM: {invalid}")    
+
     return parsed
 
 
@@ -139,7 +176,8 @@ async def audience(payload: SegmentQueryRequest):
     Raises:
         HTTPException: For invalid filter columns or invalid range filters.
     """
-    metadata = fetch_schema("residents")
+    schema_name = os.getenv("DEFAULT_SCHEMA", "public")
+    metadata = fetch_schema(schema_name)
     # Ensure metadata is iterable and contains tuples (table_name, column_name, data_type)
     if metadata is None:
         raise HTTPException(500, "Failed to fetch schema metadata for 'residents'")
@@ -163,7 +201,7 @@ async def audience(payload: SegmentQueryRequest):
             filters.append((col, "eq"))
             params.append(val)
 
-    size = run_count_query(payload.table_name, filters, params)
+    size = await run_in_threadpool(run_count_query, payload.table_name, filters, params)
 
     # Ensure we return the typed response model shape
     return AudienceSize(audience_size=int(size))

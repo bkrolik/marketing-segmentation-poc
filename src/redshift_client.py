@@ -58,11 +58,16 @@ def fetch_schema(schema_name: str):
     conn = get_conn()
     cursor = conn.cursor()
 
-    cursor.execute(f"""
+    cursor.execute(
+        sql.SQL(
+            """
         SELECT table_name, column_name, data_type
         FROM information_schema.columns
-        WHERE table_schema = '{schema_name}';
-    """)
+        WHERE table_schema = %s;
+        """
+        ),
+        [schema_name],
+    )
 
     rows = cursor.fetchall()
     conn.close()
@@ -87,10 +92,10 @@ def run_count_query(table_name: str, filters: Iterable[FilterSpec], params: List
 
     conn = get_conn()
     cursor = conn.cursor()
-    schema = os.getenv("DEFAULT_SCHEMA", "public")
+    schema_name = os.getenv("DEFAULT_SCHEMA", "public")
 
     base_query = sql.SQL("SELECT COUNT(*) FROM {}.{}").format(
-        sql.Identifier(schema),
+        sql.Identifier(schema_name),
         sql.Identifier(table_name),
     )
 
